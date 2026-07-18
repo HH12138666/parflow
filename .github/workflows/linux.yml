@@ -101,7 +101,7 @@ jobs:
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}
     strategy:
-      # fail-fast: true
+      fail-fast: false
       matrix:
         # Basic philosophy is to check builds with different compilers, backends
         # and OS.
@@ -631,3 +631,18 @@ jobs:
         export OMPI_MCA_rmaps_base_oversubscribe=1
         export OMP_NUM_THREADS=1
         (cd build; ctest --output-on-failure)
+
+    - name: Upload CoLM diagnostic outputs
+      if: >-
+        always() &&
+        matrix.config.python == 'true' &&
+        matrix.config.backend != 'cuda' &&
+        matrix.config.backend != 'kokkos' &&
+        matrix.config.pdi != 'true' &&
+        matrix.config.amps_layer != 'oas3'
+      uses: actions/upload-artifact@v4
+      with:
+        name: colm-diagnostics-${{ matrix.config.name }}
+        path: test/python/colm/diagnostics/
+        if-no-files-found: ignore
+        retention-days: 14

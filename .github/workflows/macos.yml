@@ -16,7 +16,7 @@ jobs:
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}
     strategy:
-      # fail-fast: true
+      fail-fast: false
       matrix:
         config:
         - {
@@ -162,3 +162,12 @@ jobs:
       if: matrix.config.backend != 'cuda' && matrix.config.backend != 'kokkos'
       run: |
         (cd build; ctest --output-on-failure)
+
+    - name: Upload CoLM diagnostic outputs
+      if: always() && matrix.config.python == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: colm-diagnostics-${{ matrix.config.name }}
+        path: test/python/colm/diagnostics/
+        if-no-files-found: ignore
+        retention-days: 14

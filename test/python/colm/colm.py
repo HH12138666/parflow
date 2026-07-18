@@ -9,6 +9,8 @@ from parflow.tools.io import read_pfb, write_pfb
 from parflow.tools.settings import set_working_directory
 from parflow.tools.top import compute_top, extract_top
 
+from output_diagnostics import write_clm_output_error_report
+
 # -----------------------------------------------------------------------------
 # SET RUN NAME
 # -----------------------------------------------------------------------------
@@ -31,6 +33,8 @@ def validate_results(run_directory: Path, reference_directory: Path) -> bool:
         "PF_CoLM_CI.out.satur.00000.pfb",
         "PF_CoLM_CI.out.top_index.pfb",
         "PF_CoLM_CI.out.top.press.00000.pfb",
+        "PF_CoLM_CI.out.evaptrans.00005.pfb",
+        "PF_CoLM_CI.out.clm_output.00005.C.pfb",
     )
     passed = True
     for name in strict_test_files:
@@ -72,9 +76,12 @@ def write_top_outputs(run_directory: Path) -> None:
 
 example_dir = Path(__file__).resolve().parent
 run_path = example_dir / "outputs" / runname
+diagnostics_path = example_dir / "diagnostics"
 run_dir = str(run_path)
 if run_path.exists():
     rm(run_dir)
+if diagnostics_path.exists():
+    rm(str(diagnostics_path))
 mkdir(run_dir)
 model = Run(runname, __file__)
 model.FileVersion = 4
@@ -614,13 +621,13 @@ model.Solver.PrintPressure = True
 model.Solver.PrintSaturation = True
 model.Solver.PrintMask = True
 model.Solver.PrintVelocities = False
-model.Solver.PrintEvapTrans = False
+model.Solver.PrintEvapTrans = True
 model.Solver.CLM.SingleFile = True
 model.Solver.PrintSlopes = False
 model.Solver.PrintMannings = False
 
 model.Solver.WriteCLMBinary = False
-model.Solver.PrintCLM = False
+model.Solver.PrintCLM = True
 
 # -----------------------------------------------------------------------------
 # Solver Settings
@@ -669,9 +676,13 @@ model.write(file_format="json")
 model.run(working_directory=run_dir)
 write_top_outputs(run_path)
 
-passed = validate_results(
-    run_path, example_dir.parents[1] / "correct_output" / "colm_output"
+reference_path = example_dir.parents[1] / "correct_output" / "colm_output"
+write_clm_output_error_report(
+    run_path / "PF_CoLM_CI.out.clm_output.00005.C.pfb",
+    reference_path / "PF_CoLM_CI.out.clm_output.00005.C.pfb",
+    diagnostics_path,
 )
+passed = validate_results(run_path, reference_path)
 rm(run_dir)
 if passed:
     print(f"{runname} : PASSED")

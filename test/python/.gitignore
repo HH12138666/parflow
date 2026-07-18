@@ -5,6 +5,7 @@
 *.pfb.dist
 *_output.*
 *.dat.[0-9]*
+colm/diagnostics/
 
 new_features/clm/IndicatorFile_Gleeson.50z.pfb
 new_features/clm/LW.slopex.pfb
