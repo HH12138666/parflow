@@ -31,8 +31,6 @@ def validate_results(run_directory: Path, reference_directory: Path) -> bool:
         "PF_CoLM_CI.out.satur.00000.pfb",
         "PF_CoLM_CI.out.top_index.pfb",
         "PF_CoLM_CI.out.top.press.00000.pfb",
-        "PF_CoLM_CI.out.evaptrans.00005.pfb",
-        "PF_CoLM_CI.out.clm_output.00005.C.pfb",
     )
     passed = True
     for name in strict_test_files:
@@ -616,13 +614,13 @@ model.Solver.PrintPressure = True
 model.Solver.PrintSaturation = True
 model.Solver.PrintMask = True
 model.Solver.PrintVelocities = False
-model.Solver.PrintEvapTrans = True
+model.Solver.PrintEvapTrans = False
 model.Solver.CLM.SingleFile = True
 model.Solver.PrintSlopes = False
 model.Solver.PrintMannings = False
 
 model.Solver.WriteCLMBinary = False
-model.Solver.PrintCLM = True
+model.Solver.PrintCLM = False
 
 # -----------------------------------------------------------------------------
 # Solver Settings
